@@ -106,3 +106,6 @@ The deployment job uses the GitHub Actions secret `RENDER_DEPLOY_HOOK`.
 ## Important academic-project note
 
 Use fictional/demo donor records only. Do not put real donor contact or medical information into the public repository or live demo. BloodLink is an academic directory demonstration, not a medical eligibility or emergency-response system.
+
+## CI/CD
+BloodLink uses GitHub Actions for linting, testing, Docker build, and Render deployment.
