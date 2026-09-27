@@ -76,3 +76,35 @@ def test_api_filters_by_blood_group():
     assert response.status_code == 200
     assert len(response.json) == 1
     assert response.json[0]["blood_group"] == "O+"
+
+
+def test_api_filters_by_city():
+    donors.clear()
+    donors.extend(
+        [
+            {
+                "id": 1,
+                "name": "Pune Donor",
+                "blood_group": "O+",
+                "city": "Pune",
+                "contact": "pune@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+            {
+                "id": 2,
+                "name": "Mumbai Donor",
+                "blood_group": "A+",
+                "city": "Mumbai",
+                "contact": "mumbai@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+        ]
+    )
+
+    response = client().get("/api/donors?city=Pune")
+
+    assert response.status_code == 200
+    assert len(response.json) == 1
+    assert response.json[0]["city"] == "Pune"
