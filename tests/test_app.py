@@ -234,3 +234,47 @@ def test_invalid_availability_rejected():
     assert response.status_code == 200
     assert b"Invalid availability status." in response.data
     assert donors == []
+
+
+def test_api_filters_by_blood_group_and_city():
+    donors.clear()
+    donors.extend(
+        [
+            {
+                "id": 1,
+                "name": "Pune O+ Donor",
+                "blood_group": "O+",
+                "city": "Pune",
+                "contact": "pune-o@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+            {
+                "id": 2,
+                "name": "Pune A+ Donor",
+                "blood_group": "A+",
+                "city": "Pune",
+                "contact": "pune-a@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+            {
+                "id": 3,
+                "name": "Mumbai O+ Donor",
+                "blood_group": "O+",
+                "city": "Mumbai",
+                "contact": "mumbai-o@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+        ]
+    )
+
+    response = client().get(
+        "/api/donors?blood_group=O%2B&city=Pune"
+    )
+
+    assert response.status_code == 200
+    assert len(response.json) == 1
+    assert response.json[0]["blood_group"] == "O+"
+    assert response.json[0]["city"] == "Pune"
