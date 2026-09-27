@@ -278,3 +278,41 @@ def test_api_filters_by_blood_group_and_city():
     assert len(response.json) == 1
     assert response.json[0]["blood_group"] == "O+"
     assert response.json[0]["city"] == "Pune"
+
+
+def test_donor_statistics_include_blood_group_counts():
+    donors.clear()
+    donors.extend(
+        [
+            {
+                "id": 1,
+                "name": "Donor A",
+                "blood_group": "O+",
+                "city": "Pune",
+                "contact": "a@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+            {
+                "id": 2,
+                "name": "Donor B",
+                "blood_group": "A+",
+                "city": "Pune",
+                "contact": "b@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+        ]
+    )
+
+    response = client().get("/api/stats")
+
+    assert response.status_code == 200
+
+    data = response.get_json()
+
+    assert "blood_group_counts" in data
+    assert data["blood_group_counts"]["O+"] == 1
+    assert data["blood_group_counts"]["A+"] == 1
+    assert data["blood_group_counts"]["A-"] == 0
+    assert data["blood_group_counts"]["B+"] == 0
