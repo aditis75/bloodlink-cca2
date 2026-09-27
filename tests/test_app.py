@@ -214,3 +214,23 @@ def test_missing_required_field_rejected():
     assert response.status_code == 200
     assert b"All fields are required." in response.data
     assert donors == []
+
+
+def test_invalid_availability_rejected():
+    donors.clear()
+
+    response = client().post(
+        "/register",
+        data={
+            "name": "Test Donor",
+            "blood_group": "O+",
+            "city": "Pune",
+            "contact": "test@example.com",
+            "last_donation": "2026-06-01",
+            "availability": "Maybe",
+        },
+    )
+
+    assert response.status_code == 200
+    assert b"Invalid availability status." in response.data
+    assert donors == []
