@@ -128,3 +128,37 @@ def test_future_donation_date_rejected():
     assert response.status_code == 200
     assert b"cannot be in the future" in response.data
     assert donors == []
+
+
+def test_api_filters_by_availability():
+    donors.clear()
+    donors.extend(
+        [
+            {
+                "id": 1,
+                "name": "Available Donor",
+                "blood_group": "O+",
+                "city": "Pune",
+                "contact": "available@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+            {
+                "id": 2,
+                "name": "Unavailable Donor",
+                "blood_group": "A+",
+                "city": "Pune",
+                "contact": "unavailable@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Not Available",
+            },
+        ]
+    )
+
+    response = client().get(
+        "/api/donors?availability=Available"
+    )
+
+    assert response.status_code == 200
+    assert len(response.json) == 1
+    assert response.json[0]["availability"] == "Available"

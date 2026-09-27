@@ -144,6 +144,7 @@ def register():
 def api_donors():
     blood_group = request.args.get("blood_group", "").strip()
     city = request.args.get("city", "").strip().lower()
+    availability = request.args.get("availability", "").strip()
 
     result = donors
     if blood_group:
@@ -153,6 +154,12 @@ def api_donors():
     if city:
         result = [
             donor for donor in result if donor["city"].lower() == city
+        ]
+    if availability:
+        result = [
+            donor
+            for donor in result
+            if donor["availability"] == availability
         ]
 
     return jsonify(result)
