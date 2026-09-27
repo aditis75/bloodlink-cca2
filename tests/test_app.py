@@ -194,3 +194,23 @@ def test_api_stats():
     assert response.json["available"] == 1
     assert response.json["not_available"] == 1
     assert response.json["o_positive"] == 1
+
+
+def test_missing_required_field_rejected():
+    donors.clear()
+
+    response = client().post(
+        "/register",
+        data={
+            "name": "",
+            "blood_group": "O+",
+            "city": "Pune",
+            "contact": "test@example.com",
+            "last_donation": "2026-06-01",
+            "availability": "Available",
+        },
+    )
+
+    assert response.status_code == 200
+    assert b"All fields are required." in response.data
+    assert donors == []
