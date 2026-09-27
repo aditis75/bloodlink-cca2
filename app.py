@@ -167,6 +167,11 @@ def api_donors():
 
 @app.route("/api/stats")
 def api_stats():
+    blood_group_counts = {
+        group: sum(donor["blood_group"] == group for donor in donors)
+        for group in BLOOD_GROUPS
+    }
+
     return jsonify(
         {
             "total": len(donors),
@@ -178,10 +183,8 @@ def api_stats():
                 donor["availability"] == "Not Available"
                 for donor in donors
             ),
-            "o_positive": sum(
-                donor["blood_group"] == "O+"
-                for donor in donors
-            ),
+            "o_positive": blood_group_counts["O+"],
+            "blood_group_counts": blood_group_counts,
         }
     )
 
