@@ -76,3 +76,243 @@ def test_api_filters_by_blood_group():
     assert response.status_code == 200
     assert len(response.json) == 1
     assert response.json[0]["blood_group"] == "O+"
+
+
+def test_api_filters_by_city():
+    donors.clear()
+    donors.extend(
+        [
+            {
+                "id": 1,
+                "name": "Pune Donor",
+                "blood_group": "O+",
+                "city": "Pune",
+                "contact": "pune@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+            {
+                "id": 2,
+                "name": "Mumbai Donor",
+                "blood_group": "A+",
+                "city": "Mumbai",
+                "contact": "mumbai@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+        ]
+    )
+
+    response = client().get("/api/donors?city=Pune")
+
+    assert response.status_code == 200
+    assert len(response.json) == 1
+    assert response.json[0]["city"] == "Pune"
+
+
+def test_future_donation_date_rejected():
+    donors.clear()
+
+    response = client().post(
+        "/register",
+        data={
+            "name": "Future Donor",
+            "blood_group": "O+",
+            "city": "Pune",
+            "contact": "future@example.com",
+            "last_donation": "2099-01-01",
+            "availability": "Available",
+        },
+    )
+
+    assert response.status_code == 200
+    assert b"cannot be in the future" in response.data
+    assert donors == []
+
+
+def test_api_filters_by_availability():
+    donors.clear()
+    donors.extend(
+        [
+            {
+                "id": 1,
+                "name": "Available Donor",
+                "blood_group": "O+",
+                "city": "Pune",
+                "contact": "available@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+            {
+                "id": 2,
+                "name": "Unavailable Donor",
+                "blood_group": "A+",
+                "city": "Pune",
+                "contact": "unavailable@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Not Available",
+            },
+        ]
+    )
+
+    response = client().get("/api/donors?availability=Available")
+
+    assert response.status_code == 200
+    assert len(response.json) == 1
+    assert response.json[0]["availability"] == "Available"
+
+
+def test_api_stats():
+    donors.clear()
+    donors.extend(
+        [
+            {
+                "id": 1,
+                "name": "Donor A",
+                "blood_group": "O+",
+                "city": "Pune",
+                "contact": "a@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+            {
+                "id": 2,
+                "name": "Donor B",
+                "blood_group": "A+",
+                "city": "Pune",
+                "contact": "b@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Not Available",
+            },
+        ]
+    )
+
+    response = client().get("/api/stats")
+
+    assert response.status_code == 200
+    assert response.json["total"] == 2
+    assert response.json["available"] == 1
+    assert response.json["not_available"] == 1
+    assert response.json["o_positive"] == 1
+
+
+def test_missing_required_field_rejected():
+    donors.clear()
+
+    response = client().post(
+        "/register",
+        data={
+            "name": "",
+            "blood_group": "O+",
+            "city": "Pune",
+            "contact": "test@example.com",
+            "last_donation": "2026-06-01",
+            "availability": "Available",
+        },
+    )
+
+    assert response.status_code == 200
+    assert b"All fields are required." in response.data
+    assert donors == []
+
+
+def test_invalid_availability_rejected():
+    donors.clear()
+
+    response = client().post(
+        "/register",
+        data={
+            "name": "Test Donor",
+            "blood_group": "O+",
+            "city": "Pune",
+            "contact": "test@example.com",
+            "last_donation": "2026-06-01",
+            "availability": "Maybe",
+        },
+    )
+
+    assert response.status_code == 200
+    assert b"Invalid availability status." in response.data
+    assert donors == []
+
+
+def test_api_filters_by_blood_group_and_city():
+    donors.clear()
+    donors.extend(
+        [
+            {
+                "id": 1,
+                "name": "Pune O+ Donor",
+                "blood_group": "O+",
+                "city": "Pune",
+                "contact": "pune-o@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+            {
+                "id": 2,
+                "name": "Pune A+ Donor",
+                "blood_group": "A+",
+                "city": "Pune",
+                "contact": "pune-a@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+            {
+                "id": 3,
+                "name": "Mumbai O+ Donor",
+                "blood_group": "O+",
+                "city": "Mumbai",
+                "contact": "mumbai-o@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+        ]
+    )
+
+    response = client().get(
+        "/api/donors?blood_group=O%2B&city=Pune"
+    )
+
+    assert response.status_code == 200
+    assert len(response.json) == 1
+    assert response.json[0]["blood_group"] == "O+"
+    assert response.json[0]["city"] == "Pune"
+
+
+def test_donor_statistics_include_blood_group_counts():
+    donors.clear()
+    donors.extend(
+        [
+            {
+                "id": 1,
+                "name": "Donor A",
+                "blood_group": "O+",
+                "city": "Pune",
+                "contact": "a@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+            {
+                "id": 2,
+                "name": "Donor B",
+                "blood_group": "A+",
+                "city": "Pune",
+                "contact": "b@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+        ]
+    )
+
+    response = client().get("/api/stats")
+
+    assert response.status_code == 200
+
+    data = response.get_json()
+
+    assert "blood_group_counts" in data
+    assert data["blood_group_counts"]["O+"] == 1
+    assert data["blood_group_counts"]["A+"] == 1
+    assert data["blood_group_counts"]["A-"] == 0
+    assert data["blood_group_counts"]["B+"] == 0

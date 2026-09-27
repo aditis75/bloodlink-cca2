@@ -54,9 +54,14 @@ def validate_donor(data):
         return "Invalid availability status."
 
     try:
-        datetime.strptime(data["last_donation"], "%Y-%m-%d")
+        donation_date = datetime.strptime(
+            data["last_donation"], "%Y-%m-%d"
+        ).date()
     except ValueError:
         return "Last donation date must be in YYYY-MM-DD format."
+
+    if donation_date > datetime.now().date():
+        return "Last donation date cannot be in the future."
 
     return None
 
@@ -139,6 +144,7 @@ def register():
 def api_donors():
     blood_group = request.args.get("blood_group", "").strip()
     city = request.args.get("city", "").strip().lower()
+    availability = request.args.get("availability", "").strip()
 
     result = donors
     if blood_group:
@@ -149,8 +155,38 @@ def api_donors():
         result = [
             donor for donor in result if donor["city"].lower() == city
         ]
+    if availability:
+        result = [
+            donor
+            for donor in result
+            if donor["availability"] == availability
+        ]
 
     return jsonify(result)
+
+
+@app.route("/api/stats")
+def api_stats():
+    blood_group_counts = {
+        group: sum(donor["blood_group"] == group for donor in donors)
+        for group in BLOOD_GROUPS
+    }
+
+    return jsonify(
+        {
+            "total": len(donors),
+            "available": sum(
+                donor["availability"] == "Available"
+                for donor in donors
+            ),
+            "not_available": sum(
+                donor["availability"] == "Not Available"
+                for donor in donors
+            ),
+            "o_positive": blood_group_counts["O+"],
+            "blood_group_counts": blood_group_counts,
+        }
+    )
 
 
 @app.route("/health")
