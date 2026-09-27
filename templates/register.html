@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register | BloodLink</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="hero small-hero">
+    <div>
+        <p class="eyebrow">BloodLink</p>
+        <h1>Donor Registration</h1>
+        <p class="subtitle">Add a fictional/demo donor record for the CCA application.</p>
+    </div>
+    <a class="button secondary" href="{{ url_for('home') }}">Back to Directory</a>
+</header>
+
+<main class="container narrow">
+    <section class="panel">
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" class="register-form">
+            <label>
+                Donor Name
+                <input name="name" required placeholder="e.g. Demo Donor C">
+            </label>
+
+            <label>
+                Blood Group
+                <select name="blood_group" required>
+                    <option value="">Select</option>
+                    {% for group in blood_groups %}
+                    <option value="{{ group }}">{{ group }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>
+                City
+                <input name="city" required placeholder="e.g. Pune">
+            </label>
+
+            <label>
+                Contact
+                <input name="contact" required placeholder="demo@example.com">
+            </label>
+
+            <label>
+                Last Donation Date
+                <input type="date" name="last_donation" required>
+            </label>
+
+            <label>
+                Availability
+                <select name="availability" required>
+                    <option value="">Select</option>
+                    {% for status in availability_options %}
+                    <option value="{{ status }}">{{ status }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <button class="button" type="submit">Add Donor</button>
+        </form>
+    </section>
+</main>
+
+<footer>BloodLink · running commit {{ commit }}</footer>
+</body>
+</html>

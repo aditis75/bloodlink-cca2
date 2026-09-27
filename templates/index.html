@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BloodLink</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="hero">
+    <div>
+        <p class="eyebrow">BloodLink</p>
+        <h1>Smart Blood Donor Directory</h1>
+        <p class="subtitle">
+            A demo directory for finding registered, currently available donors.
+        </p>
+    </div>
+    <a class="button" href="{{ url_for('register') }}">Register as Donor</a>
+</header>
+
+<main class="container">
+    <section class="stats">
+        <div class="stat-card">
+            <span>Total Donors</span>
+            <strong>{{ stats.total }}</strong>
+        </div>
+        <div class="stat-card">
+            <span>Available Donors</span>
+            <strong>{{ stats.available }}</strong>
+        </div>
+        <div class="stat-card">
+            <span>O+ Donors</span>
+            <strong>{{ stats.o_positive }}</strong>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Find a Donor</h2>
+        <form method="get" class="filter-form">
+            <label>
+                Blood Group
+                <select name="blood_group">
+                    <option value="">All</option>
+                    {% for group in blood_groups %}
+                    <option value="{{ group }}"
+                        {% if selected_blood_group == group %}selected{% endif %}>
+                        {{ group }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>
+                City
+                <input name="city" value="{{ selected_city }}" placeholder="e.g. Pune">
+            </label>
+
+            <label>
+                Availability
+                <select name="availability">
+                    <option value="">All</option>
+                    {% for status in availability_options %}
+                    <option value="{{ status }}"
+                        {% if selected_availability == status %}selected{% endif %}>
+                        {{ status }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <button class="button" type="submit">Search</button>
+            <a class="clear-link" href="{{ url_for('home') }}">Clear</a>
+        </form>
+    </section>
+
+    <section class="panel">
+        <div class="section-heading">
+            <h2>Registered Donors</h2>
+            <span>{{ donors|length }} result(s)</span>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Blood Group</th>
+                        <th>City</th>
+                        <th>Contact</th>
+                        <th>Last Donation</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for donor in donors %}
+                    <tr>
+                        <td>{{ donor.name }}</td>
+                        <td><span class="blood">{{ donor.blood_group }}</span></td>
+                        <td>{{ donor.city }}</td>
+                        <td>{{ donor.contact }}</td>
+                        <td>{{ donor.last_donation }}</td>
+                        <td>
+                            <span class="status {{ donor.availability|lower|replace(' ', '-') }}">
+                                {{ donor.availability }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="empty">No matching donors found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="notice">
+        <strong>Demo notice:</strong> Use fictional data for this academic project.
+        BloodLink is not a medical eligibility or emergency-response system.
+    </div>
+</main>
+
+<footer>BloodLink · running commit {{ commit }}</footer>
+</body>
+</html>
