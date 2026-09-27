@@ -54,9 +54,14 @@ def validate_donor(data):
         return "Invalid availability status."
 
     try:
-        datetime.strptime(data["last_donation"], "%Y-%m-%d")
+        donation_date = datetime.strptime(
+            data["last_donation"], "%Y-%m-%d"
+        ).date()
     except ValueError:
         return "Last donation date must be in YYYY-MM-DD format."
+
+    if donation_date > datetime.now().date():
+        return "Last donation date cannot be in the future."
 
     return None
 

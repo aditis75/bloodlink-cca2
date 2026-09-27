@@ -108,3 +108,23 @@ def test_api_filters_by_city():
     assert response.status_code == 200
     assert len(response.json) == 1
     assert response.json[0]["city"] == "Pune"
+
+
+def test_future_donation_date_rejected():
+    donors.clear()
+
+    response = client().post(
+        "/register",
+        data={
+            "name": "Future Donor",
+            "blood_group": "O+",
+            "city": "Pune",
+            "contact": "future@example.com",
+            "last_donation": "2099-01-01",
+            "availability": "Available",
+        },
+    )
+
+    assert response.status_code == 200
+    assert b"cannot be in the future" in response.data
+    assert donors == []
