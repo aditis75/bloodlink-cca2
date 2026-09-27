@@ -155,9 +155,7 @@ def test_api_filters_by_availability():
         ]
     )
 
-    response = client().get(
-        "/api/donors?availability=Available"
-    )
+    response = client().get("/api/donors?availability=Available")
 
     assert response.status_code == 200
     assert len(response.json) == 1
