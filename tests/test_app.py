@@ -162,3 +162,37 @@ def test_api_filters_by_availability():
     assert response.status_code == 200
     assert len(response.json) == 1
     assert response.json[0]["availability"] == "Available"
+
+
+def test_api_stats():
+    donors.clear()
+    donors.extend(
+        [
+            {
+                "id": 1,
+                "name": "Donor A",
+                "blood_group": "O+",
+                "city": "Pune",
+                "contact": "a@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Available",
+            },
+            {
+                "id": 2,
+                "name": "Donor B",
+                "blood_group": "A+",
+                "city": "Pune",
+                "contact": "b@example.com",
+                "last_donation": "2026-06-01",
+                "availability": "Not Available",
+            },
+        ]
+    )
+
+    response = client().get("/api/stats")
+
+    assert response.status_code == 200
+    assert response.json["total"] == 2
+    assert response.json["available"] == 1
+    assert response.json["not_available"] == 1
+    assert response.json["o_positive"] == 1

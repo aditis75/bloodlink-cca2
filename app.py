@@ -165,6 +165,27 @@ def api_donors():
     return jsonify(result)
 
 
+@app.route("/api/stats")
+def api_stats():
+    return jsonify(
+        {
+            "total": len(donors),
+            "available": sum(
+                donor["availability"] == "Available"
+                for donor in donors
+            ),
+            "not_available": sum(
+                donor["availability"] == "Not Available"
+                for donor in donors
+            ),
+            "o_positive": sum(
+                donor["blood_group"] == "O+"
+                for donor in donors
+            ),
+        }
+    )
+
+
 @app.route("/health")
 def health():
     return jsonify({"status": "ok", "commit": COMMIT})
